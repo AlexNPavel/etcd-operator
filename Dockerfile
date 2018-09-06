@@ -2,18 +2,12 @@ FROM openshift/origin-base as builder
 RUN yum update -y
 RUN yum install -y golang git
 
-RUN curl -L https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -o /usr/local/bin/dep \
-    && chmod +x /usr/local/bin/dep \
-    && go get honnef.co/go/tools/cmd/gosimple \
-    && go get honnef.co/go/tools/cmd/unused
-
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
 WORKDIR /go/src/github.com/coreos/etcd-operator
 COPY . .
 
-RUN dep ensure
 RUN /bin/bash -c "hack/build/operator/build && hack/build/backup-operator/build && hack/build/restore-operator/build"
 
 FROM openshift/origin-base
